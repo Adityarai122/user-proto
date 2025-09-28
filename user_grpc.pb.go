@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	UserService_ServerReply_FullMethodName = "/user.UserService/ServerReply"
+	UserService_AddUser_FullMethodName     = "/user.UserService/AddUser"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -29,6 +30,7 @@ const (
 // Service definition
 type UserServiceClient interface {
 	ServerReply(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	AddUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*Message, error)
 }
 
 type userServiceClient struct {
@@ -49,6 +51,16 @@ func (c *userServiceClient) ServerReply(ctx context.Context, in *HelloRequest, o
 	return out, nil
 }
 
+func (c *userServiceClient) AddUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*Message, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Message)
+	err := c.cc.Invoke(ctx, UserService_AddUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -56,6 +68,7 @@ func (c *userServiceClient) ServerReply(ctx context.Context, in *HelloRequest, o
 // Service definition
 type UserServiceServer interface {
 	ServerReply(context.Context, *HelloRequest) (*HelloResponse, error)
+	AddUser(context.Context, *User) (*Message, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -68,6 +81,9 @@ type UnimplementedUserServiceServer struct{}
 
 func (UnimplementedUserServiceServer) ServerReply(context.Context, *HelloRequest) (*HelloResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerReply not implemented")
+}
+func (UnimplementedUserServiceServer) AddUser(context.Context, *User) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddUser not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -108,6 +124,24 @@ func _UserService_ServerReply_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_AddUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AddUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AddUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AddUser(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -118,6 +152,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ServerReply",
 			Handler:    _UserService_ServerReply_Handler,
+		},
+		{
+			MethodName: "AddUser",
+			Handler:    _UserService_AddUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

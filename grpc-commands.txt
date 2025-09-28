@@ -1,0 +1,5 @@
+protoc --go-grpc_out=. --go_out=. *.proto
+
+must install
+go get google.golang.org/grpc
+go get google.golang.org/protobuf
