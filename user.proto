@@ -1,0 +1,18 @@
+syntax = "proto3";
+package user;
+// Go package path (replace with your github path)
+option go_package = "./";
+
+// Request & Response messages
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+}
+
+// Service definition
+service UserService {
+  rpc ServerReply (HelloRequest) returns (HelloResponse);
+}
